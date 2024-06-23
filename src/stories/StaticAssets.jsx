@@ -1,22 +1,20 @@
 import React from "react";
 
 export const StaticAssets = () => {
-  const modules = import.meta.glob(["/public/assets/**/*.*"], {
-    query: "?url",
-    import: "default",
-    eager: true,
-  });
+  function importAll(r) {
+    return r.keys().reduce((acc, path) => ({ ...acc, [path]: r(path) }), {});
+  }
+
+  const modules = importAll(require.context("/public/assets", true));
 
   const assets = Object.entries(modules).map(([path, url]) => ({
     path,
-    url: url.replace(/^\/public/, ""),
+    url,
     filename: path.split("/").pop(),
     isImage: /\.(png|jpe?g|gif|svg|avif)$/.test(path),
     isVideo: /\.(mp4|webm|ogg)$/.test(path),
     isFont: /\.(woff2?|eot|ttf|otf)$/.test(path),
   }));
-
-  console.log(assets);
 
   return (
     <div className="p-3">
